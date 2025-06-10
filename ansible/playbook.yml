@@ -1,0 +1,19 @@
+- name: Deploy CI/CD App
+  hosts: servers
+  become: yes
+
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Pull Docker image
+      shell: docker pull nagarajurahul/rahul-repos:latest 
+
+    - name: Stop existing container
+      shell: docker stop ci-cd-app || true && docker rm ci-cd-app || true 
+
+    - name: Run Docker container
+      shell: docker run -d --name ci-cd-app -p 3000:3000 nagarajurahul/rahul-repos:latest
