@@ -1,4 +1,4 @@
-name: CD - Deploy Docker to EC2
+name: CD Deploy Docker to EC2
 on: 
   workflow_run:
     workflows: ["CI Build & Push"]
