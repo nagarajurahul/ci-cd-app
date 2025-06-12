@@ -3,18 +3,18 @@ set -e
 
 echo "📦 Ensuring Docker is installed and running..."
 
-# Install Docker if not already installed
+# Check for Docker
 if ! command -v docker &> /dev/null; then
-  echo "🔧 Docker not found. Installing..."
-  sudo apt update
-  sudo apt install -y docker.io
+  echo "🔧 Docker not found. Installing with dnf..."
+  sudo dnf update -y
+  sudo dnf install -y docker
   sudo systemctl enable docker
   sudo systemctl start docker
 else
   echo "✅ Docker is already installed."
 fi
 
-# Start Docker if not running
+# Start Docker if it's not running
 if ! sudo systemctl is-active --quiet docker; then
   echo "▶️ Starting Docker service..."
   sudo systemctl start docker
