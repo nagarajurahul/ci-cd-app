@@ -2,7 +2,7 @@ name: CI/CD Docker Build & Deploy to EC2
 
 on:
   push:
-    branches: [cd]  # Trigger on push to cd branch
+    branches: [main]  # Trigger on push to cd branch
 
   workflow_dispatch:  # Manual trigger for testing
 
