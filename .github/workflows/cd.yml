@@ -1,41 +1,50 @@
-name: CD Deploy Docker to EC2
-on: 
-  workflow_run:
-    workflows: ["CI Build & Push"]
-    branches: [ cd ]
-    types: 
-      - completed
-  workflow_dispatch:  # ✅ Adds a manual "Run workflow" button in GitHub UI
-env:
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-  DOCKERHUB_IMAGE: ${{ secrets.DOCKERHUB_IMAGE }}
-  DOCKER_CONTAINER_NAME: ${{ secrets.DOCKER_CONTAINER_NAME }}
-  AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
-  EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
-  EC2_IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Save and Set permissions for private key
-        run: |
-          echo "${{ env.AWS_PRIVATE_KEY }}" > key.pem
-          chmod 600 key.pem
-      - name: Upload deploy script (safe version)
-        run: |
-          scp -o StrictHostKeyChecking=no -i key.pem scripts/deploy.sh ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }}:~/deploy.sh
-          ssh -o StrictHostKeyChecking=no -i key.pem ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} "chmod +x ~/deploy.sh"
-      - name: Run deploy script with env vars securely
-        run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem \
-          ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} \
-          "export DOCKERHUB_USERNAME='${{ secrets.DOCKERHUB_USERNAME }}' && \
-          export DOCKERHUB_TOKEN='${{ secrets.DOCKERHUB_TOKEN }}' && \
-          export DOCKERHUB_IMAGE='${{ secrets.DOCKERHUB_IMAGE }}' && \
-          export DOCKER_CONTAINER_NAME='${{ secrets.DOCKER_CONTAINER_NAME }}' && \
-          bash ~/deploy.sh"
-  
+# name: CD Deploy Docker to EC2
+# on: 
+#   workflow_run:
+#     workflows: ["CI Docker Build"]
+#     branches: [ cd ]
+#     types: 
+#       - completed
+#   workflow_dispatch:  # ✅ Adds a manual "Run workflow" button in GitHub UI
+# env:
+#   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+#   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+#   DOCKERHUB_IMAGE: ${{ secrets.DOCKERHUB_IMAGE }}
+#   DOCKERHUB_TAG: ${{ secrets.DOCKERHUB_TAG }}
+#   DOCKER_CONTAINER_NAME: ${{ secrets.DOCKER_CONTAINER_NAME }}
+#   DOCKER_CONTAINER_PORT: ${{ secrets.DOCKER_CONTAINER_PORT }}
+#   AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+#   EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+#   EC2_IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
+
+# jobs:
+#   deploy:
+#     name: 🚀 CD - Deploy to EC2
+#     runs-on: ubuntu-latest
+#     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Save and Set permissions for private key
+#         run: |
+#           echo "${{ env.AWS_PRIVATE_KEY }}" | sed 's/\\n/\n/g' > key.pem
+#           chmod 600 key.pem
+
+#       - name: Upload deploy script to EC2 and set executable permissions
+#         run: |
+#           scp -o StrictHostKeyChecking=no -i key.pem ./scripts/deploy.sh ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }}:~/deploy.sh
+#           ssh -o StrictHostKeyChecking=no -i key.pem ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} "chmod +x ~/deploy.sh"
+
+#       - name: Run deploy script on EC2
+#         run: |
+#           ssh -o StrictHostKeyChecking=no -i key.pem \
+#           ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} \
+#           "export DOCKERHUB_USERNAME='${{ secrets.DOCKERHUB_USERNAME }}' && \
+#            export DOCKERHUB_TOKEN='${{ secrets.DOCKERHUB_TOKEN }}' && \
+#            export DOCKERHUB_IMAGE='${{ secrets.DOCKERHUB_IMAGE }}' && \
+#            export DOCKERHUB_TAG='${{ secrets.DOCKERHUB_TAG }}' && \
+#            export DOCKER_CONTAINER_PORT='${{ secrets.DOCKER_CONTAINER_PORT }}' && \
+#            export DOCKER_CONTAINER_NAME='${{ secrets.DOCKER_CONTAINER_NAME }}' && \
+#            bash ~/deploy.sh"
