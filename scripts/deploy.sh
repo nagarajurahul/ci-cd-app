@@ -28,6 +28,6 @@ echo "$DOCKERHUB_TOKEN" | sudo docker login -u "$DOCKERHUB_USERNAME" --password-
 sudo docker pull "$DOCKERHUB_USERNAME/$DOCKERHUB_IMAGE:$DOCKERHUB_TAG"
 
 echo "Restarting Docker container..."
-sudo docker kill my-app || true
-sudo docker rm my-app || true
+sudo docker kill "$DOCKER_CONTAINER_NAME" || true
+sudo docker rm "$DOCKER_CONTAINER_NAME" || true
 sudo docker run -d --name "$DOCKER_CONTAINER_NAME" -p 3000:3000 "$DOCKERHUB_USERNAME/$DOCKERHUB_IMAGE:$DOCKERHUB_TAG"
