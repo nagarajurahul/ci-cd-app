@@ -53,7 +53,7 @@ jobs:
 
       - name: Save and Set permissions for private key
         run: |
-          echo "${{ env.AWS_PRIVATE_KEY }}" > key.pem
+          echo "${{ env.AWS_PRIVATE_KEY }}" | sed 's/\\n/\n/g' > key.pem
           chmod 600 key.pem
 
       - name: Upload deploy script to EC2
