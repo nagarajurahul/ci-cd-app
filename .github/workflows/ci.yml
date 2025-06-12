@@ -2,7 +2,7 @@ name: CI Build & Push
 
 on:
   push:
-    branches: [ main ]
+    branches: [ cd ]
 
 jobs:
   build-and-push:
