@@ -42,7 +42,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE }}:${{ secrets.DOCKER_CONTAINER_PORT }}
-
+          no-cache: true
+          
   deploy:
     name: 🚀 CD - Deploy to EC2
     runs-on: ubuntu-latest
