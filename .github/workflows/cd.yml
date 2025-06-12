@@ -2,7 +2,7 @@ name: CD Deploy Docker to EC2
 on: 
   workflow_run:
     workflows: ["CI Build & Push"]
-    branches: [cd]
+    branches: [ cd ]
     types: 
       - completed
   workflow_dispatch:  # ✅ Adds a manual "Run workflow" button in GitHub UI
