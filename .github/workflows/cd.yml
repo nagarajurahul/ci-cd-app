@@ -36,6 +36,8 @@ jobs:
           export DOCKERHUB_IMAGE="${{ secrets.DOCKERHUB_IMAGE }}"
           export DOCKER_CONTAINER_NAME="${{ secrets.DOCKER_CONTAINER_NAME }}"
           bash ~/deploy.sh
+workflow_dispatch:  # ✅ Adds a manual "Run workflow" button in GitHub UI
+
           EOF
                 
   
