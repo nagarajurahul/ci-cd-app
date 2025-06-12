@@ -32,9 +32,9 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} <<EOF
           export DOCKERHUB_USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
-          export DOCKERHUB_TOKEN:"${{ secrets.DOCKERHUB_TOKEN }}"
-          export DOCKERHUB_IMAGE:"${{ secrets.DOCKERHUB_IMAGE }}"
-          export DOCKER_CONTAINER_NAME:"${{ secrets.DOCKER_CONTAINER_NAME }}"
+          export DOCKERHUB_TOKEN="${{ secrets.DOCKERHUB_TOKEN }}"
+          export DOCKERHUB_IMAGE="${{ secrets.DOCKERHUB_IMAGE }}"
+          export DOCKER_CONTAINER_NAME="${{ secrets.DOCKER_CONTAINER_NAME }}"
           bash ~/deploy.sh
           EOF
                 
