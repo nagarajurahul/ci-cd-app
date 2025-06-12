@@ -18,12 +18,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Set permissions for private key
+      - name: Save and Set permissions for private key
         run: |
           echo "${{ env.AWS_PRIVATE_KEY }}" > key.pem
           chmod 600 key.pem
-      - name: SSH into EC2
+      - name: Upload deploy script (safe version)
         run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }}
+          scp -o StrictHostKeyChecking=no -i key.pem deploy.sh ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} :~/deploy.sh
+      - name: Run deploy script with env vars securely
+        run: |
+          ssh -o StrictHostKeyChecking=no -i key.pem ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} <<EOF
+          export DOCKERHUB_USERNAME: ${{ env.DOCKERHUB_USERNAME }}
+          export DOCKERHUB_TOKEN: ${{ env.DOCKERHUB_TOKEN }}
+          bash ~/deploy.sh
+      EOF
                 
   
