@@ -1,11 +1,13 @@
 # name: CD Deploy Docker to EC2
+
 # on: 
 #   workflow_run:
 #     workflows: ["CI Docker Build"]
 #     branches: [ cd ]
 #     types: 
 #       - completed
-#   workflow_dispatch:  # ✅ Adds a manual "Run workflow" button in GitHub UI
+#   workflow_dispatch:
+
 # env:
 #   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 #   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
