@@ -1,0 +1,16 @@
+# Node modules (generated)
+node_modules/
+
+# Environment variables (secret!)
+.env
+
+# Logs
+*.log
+logs/
+
+# OS junk
+.DS_Store
+
+# Runtime
+dist/
+coverage/
