@@ -58,7 +58,7 @@ jobs:
 
       - name: Upload deploy script to EC2
         run: |
-          scp -o StrictHostKeyChecking=no -i key.pem scripts/deploy.sh ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }}:~/deploy.sh
+          scp -o StrictHostKeyChecking=no -i key.pem ./scripts/deploy.sh ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }}:~/deploy.sh
           ssh -o StrictHostKeyChecking=no -i key.pem ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} "chmod +x ~/deploy.sh"
 
       - name: Run deploy script on EC2
