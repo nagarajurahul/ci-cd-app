@@ -5,6 +5,7 @@ on:
     branches: [cd]
     types: 
       - completed
+  workflow_dispatch:  # ✅ Adds a manual "Run workflow" button in GitHub UI
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -36,8 +37,6 @@ jobs:
           export DOCKERHUB_IMAGE="${{ secrets.DOCKERHUB_IMAGE }}"
           export DOCKER_CONTAINER_NAME="${{ secrets.DOCKER_CONTAINER_NAME }}"
           bash ~/deploy.sh
-workflow_dispatch:  # ✅ Adds a manual "Run workflow" button in GitHub UI
-
           EOF
                 
   
