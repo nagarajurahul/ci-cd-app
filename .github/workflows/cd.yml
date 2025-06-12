@@ -24,13 +24,14 @@ jobs:
           chmod 600 key.pem
       - name: Upload deploy script (safe version)
         run: |
-          scp -o StrictHostKeyChecking=no -i key.pem deploy.sh ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} :~/deploy.sh
+          scp -o StrictHostKeyChecking=no -i key.pem scripts/deploy.sh ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} :~/deploy.sh
+          ssh -o StrictHostKeyChecking=no -i key.pem ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} "chmod +x ~/deploy.sh"
       - name: Run deploy script with env vars securely
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} <<EOF
-          export DOCKERHUB_USERNAME: ${{ env.DOCKERHUB_USERNAME }}
-          export DOCKERHUB_TOKEN: ${{ env.DOCKERHUB_TOKEN }}
+          export DOCKERHUB_USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
+          export DOCKERHUB_TOKEN:"${{ secrets.DOCKERHUB_TOKEN }}"
           bash ~/deploy.sh
-      EOF
+          EOF
                 
   
