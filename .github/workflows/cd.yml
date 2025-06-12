@@ -17,7 +17,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -27,16 +27,16 @@ jobs:
           chmod 600 key.pem
       - name: Upload deploy script (safe version)
         run: |
-          scp -o StrictHostKeyChecking=no -i key.pem scripts/deploy.sh ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} :~/deploy.sh
+          scp -o StrictHostKeyChecking=no -i key.pem scripts/deploy.sh ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }}:~/deploy.sh
           ssh -o StrictHostKeyChecking=no -i key.pem ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} "chmod +x ~/deploy.sh"
       - name: Run deploy script with env vars securely
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ${{ env.EC2_USERNAME }}@${{ env.EC2_IP_ADDRESS }} <<EOF
-          export DOCKERHUB_USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
-          export DOCKERHUB_TOKEN="${{ secrets.DOCKERHUB_TOKEN }}"
-          export DOCKERHUB_IMAGE="${{ secrets.DOCKERHUB_IMAGE }}"
-          export DOCKER_CONTAINER_NAME="${{ secrets.DOCKER_CONTAINER_NAME }}"
-          bash ~/deploy.sh
-          EOF
+export DOCKERHUB_USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
+export DOCKERHUB_TOKEN="${{ secrets.DOCKERHUB_TOKEN }}"
+export DOCKERHUB_IMAGE="${{ secrets.DOCKERHUB_IMAGE }}"
+export DOCKER_CONTAINER_NAME="${{ secrets.DOCKER_CONTAINER_NAME }}"
+bash ~/deploy.sh
+EOF
                 
   
