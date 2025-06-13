@@ -30,8 +30,11 @@ echo "$DOCKERHUB_TOKEN" | sudo docker login -u "$DOCKERHUB_USERNAME" --password-
 echo "⇣ Pulling latest Docker image..."
 sudo docker pull "$DOCKERHUB_USERNAME/$DOCKERHUB_IMAGE:$DOCKERHUB_TAG"
 
-echo "🔄 Restarting Docker container..."
+echo "🔄 Running/Restarting Docker container..."
 # sudo docker stop "$DOCKER_CONTAINER_NAME" || true
 sudo docker kill "$DOCKER_CONTAINER_NAME" || true
 sudo docker rm "$DOCKER_CONTAINER_NAME" || true
 sudo docker run -d --name "$DOCKER_CONTAINER_NAME" -p "$DOCKER_CONTAINER_PORT":"$DOCKER_CONTAINER_PORT"  "$DOCKERHUB_USERNAME/$DOCKERHUB_IMAGE:$DOCKERHUB_TAG"
+
+echo "Removing unused Docker images"
+sudo docker image prune -af
