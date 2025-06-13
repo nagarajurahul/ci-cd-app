@@ -57,12 +57,15 @@ Make sure your EC2 security group allows inbound traffic on that port.
 ---
 
 ## ✅ Future Improvements
-- Replace Docker Hub with Amazon ECR
+- Use SSM Parameter Store or Secrets Manager over env variables for docker login
 - Use EC2 IAM roles + AWS SSM to avoid storing SSH keys
-- Add unit tests and linting to CI
+- Replace Docker Hub with Amazon ECR
 - Add monitoring/logging (e.g. CloudWatch, Prometheus)
-- Add HTTPS with Let's Encrypt
 - Migrate to ECS or Kubernetes for scalability
+- Set Up Domain + TLS
+- Add HTTPS with Let's Encrypt
+- Pin GitHub Actions Versions
+- Add unit tests and linting to CI
 
 ---
 
