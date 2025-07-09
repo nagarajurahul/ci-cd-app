@@ -41,6 +41,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          platforms: linux/amd64
           tags: ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE }}:${{ secrets.DOCKERHUB_TAG }}
           no-cache: true
           
