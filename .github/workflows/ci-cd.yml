@@ -116,10 +116,10 @@ jobs:
           image-ref: alpine:3.10
           # image-ref: '${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE }}:${{ env.DOCKERHUB_TAG }}'
           format: 'sarif'
-          # exit-code: '1'   # fail if vulnerabilities found
-          # vuln-type: 'os,library'
-          # severity: 'CRITICAL,HIGH'
           output: 'trivy-results.sarif'
+          exit-code: '1'   # fail if vulnerabilities found
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
