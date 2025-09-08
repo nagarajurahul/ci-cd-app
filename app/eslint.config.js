@@ -5,11 +5,7 @@ export default [
   {
     languageOptions: {
       ecmaVersion: "latest",
-      sourceType: "commonjs",   // allow require()
-      globals: {
-        console: "readonly",
-        require: "readonly"
-      }
+      sourceType: "module",   // ESM project or sourceType: "commonjs",   // allow require()
     },
     rules: {
       semi: ["error", "always"],
