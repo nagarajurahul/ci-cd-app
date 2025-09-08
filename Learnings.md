@@ -38,3 +38,27 @@ Add a HEALTHCHECK instruction to detect container issues.
 Use .dockerignore to exclude logs, .git, node_modules (if building inside container).
 
 Avoid latest tags — pin Node.js version.
+
+
+
+New Learnings
+
+pinning and using minimal lts base versions for docker images
+
+npm ci vs npm install
+
+running container as non-root user
+
+Working directory is app/ folder
+
+Installing eslint through package.json
+
+Double-quotes are more standard
+
+const js = require("@eslint/js"); -> old style -> requires adding sourceType: "commonjs" in lint
+
+vs
+
+import js from "@eslint/js"; -> new style called ESM -> requires adding { "type": "module" } in package.json
+
+
