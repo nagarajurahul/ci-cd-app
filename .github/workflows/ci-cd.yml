@@ -2,9 +2,7 @@ name: CI/CD Docker Build & Deploy to EC2
 
 on:
   push:
-    branches: [main]  # Trigger on push to cd branch
-
-  workflow_dispatch:  # Manual trigger for testing
+    branches: [main]
 
 permissions:
   contents: read
@@ -25,11 +23,14 @@ jobs:
 
   lint-and-scan:
     name: Lint and Scan the code
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+
     defaults:
       run:
-        working-directory: ./app   #applies to all run: steps
+        working-directory: ./app   #applies to 'run:' inside all steps
+
     steps:
+
       # Checkout repo
       - name: Checkout code
         uses: actions/checkout@v4
@@ -46,13 +47,9 @@ jobs:
         run: npm install
         # run: npm ci
 
-      # Delete after running npm install command in dev terminal and adding to package
-      # - name: Install ESLint
-      #   run: npm install --save-dev eslint@9
-
+      # Delete after running npm install command in dev terminal and adding to package.json
       - name: Install ESLint and Plugins
         run: npm install --save-dev eslint@9 @eslint/js eslint-plugin-n
-
 
       # Run ESLint
       - name: Run ESLint
@@ -68,12 +65,13 @@ jobs:
         with:
           dockerfile: ./Dockerfile
 
-  build:
-    name: 🛠️ CI - Build & Push Docker Image
-    runs-on: ubuntu-latest
+  ci:
+    name: 🛠️ CI - Build, Scan & Push Docker Image
+    runs-on: ubuntu-24.04
     needs: lint-and-scan
 
     steps:
+
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
@@ -83,20 +81,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
+      - name: 🐳 Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: 🔨 Build Docker image (no push yet)
+      - name: 🏗 Build Docker image (no push yet)
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: false                      # only build, so that we can scan image using Trivy
           load: true                       # load image into runner’s Docker engine
-          tags: ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE }}:${{ env.DOCKERHUB_TAG }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ secrets.DOCKERHUB_TAG }}
 
       # - name: 🐳 Login to Docker Hub
       #   run: echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
@@ -110,8 +108,8 @@ jobs:
         continue-on-error: true  # don’t stop pipeline, even if vulnerabilities found, ensures reporting
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: alpine:3.10
-          # image-ref: '${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE }}:${{ env.DOCKERHUB_TAG }}'
+          # image-ref: alpine:3.10   # for testing security and reporting
+          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ secrets.DOCKERHUB_TAG }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
           exit-code: '1'   # fail if vulnerabilities found
@@ -138,8 +136,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE }}:${{ env.DOCKERHUB_TAG }}
-            ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ secrets.DOCKERHUB_TAG }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:latest
 
       # - name: 🚀 Push image to Docker Hub
       #   if: steps.trivy.outcome == 'success'
@@ -150,10 +148,10 @@ jobs:
         run: |
           docker inspect ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${DOCKERHUB_TAG} --format='OS: {{.Os}}, Arch: {{.Architecture}}'
           
-  # deploy:
+  # cd:
   #   name: 🚀 CD - Deploy to EC2
   #   runs-on: ubuntu-latest
-  #   needs: build
+  #   needs: ci
   #   if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
 
   #   steps:
