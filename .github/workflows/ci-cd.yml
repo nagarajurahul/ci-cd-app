@@ -32,10 +32,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          # cache: 'npm'
 
       # Install dependencies
       - name: Install dependencies
-        run: npm ci
+        run: npm install
+        # run: npm ci
 
       # Run ESLint
       - name: Run ESLint
