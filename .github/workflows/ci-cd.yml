@@ -105,6 +105,21 @@ jobs:
       - name: 🏗 Build Docker image (native amd64)
         run: |
           docker build -t ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${DOCKERHUB_TAG} .
+    
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: '${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${DOCKERHUB_TAG}'
+          format: 'sarif'
+          # exit-code: '1'   # fail if vulnerabilities found
+          # vuln-type: 'os,library'
+          # severity: 'CRITICAL,HIGH'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
 
       - name: 🚀 Push image to Docker Hub
         run: |
