@@ -113,11 +113,12 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: '${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE }}:${{ env.DOCKERHUB_TAG }}'
+          image-ref: alpine:3.10
+          # image-ref: '${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE }}:${{ env.DOCKERHUB_TAG }}'
           format: 'sarif'
-          # exit-code: '1'   # fail if vulnerabilities found
-          # vuln-type: 'os,library'
-          # severity: 'CRITICAL,HIGH'
+          exit-code: '1'   # fail if vulnerabilities found
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
           output: 'trivy-results.sarif'
 
       - name: Upload Trivy scan results to GitHub Security tab
