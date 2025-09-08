@@ -43,8 +43,12 @@ jobs:
         # run: npm ci
 
       # Delete after running npm install command in dev terminal and adding to package
-      - name: Install ESLint
-        run: npm install --save-dev eslint@9
+      # - name: Install ESLint
+      #   run: npm install --save-dev eslint@9
+
+      - name: Install ESLint and Plugins
+        run: npm install --save-dev eslint@9 @eslint/js eslint-plugin-n
+
 
       # Run ESLint
       - name: Run ESLint
