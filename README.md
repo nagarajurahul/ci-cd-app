@@ -38,12 +38,16 @@ All secrets are stored in **GitHub Actions Secrets**:
 
 ### 🔧 Build Job
 - Checks out code
-- Builds Docker image using Buildx
-- Pushes to Docker Hub using dynamic tagging (`GITHUB_SHA` or manual tag)
+- Linting the Node.Js code using `ESLint` 
+- Audit the `NPM` for dependency checks
+- `Trivy` scan before push, with SARIF upload to GitHub Security tab
+- `Gatekeeper` step (fail pipeline on CRITICAL/HIGH CVEs)
+- Builds Docker image using `BuildKit` for multi-platform and reproducible builds
+- Pushes to `Docker Hub` using dynamic tagging (`GITHUB_SHA` or manual tag)
 
 ### 🚀 Deploy Job
-- Uses `needs: build` to depend on successful build
-- SSHs into EC2 securely
+- Uses `needs: ci` to depend on successful build
+- SSHs into `EC2` securely
 - Uploads and runs `deploy.sh` script
 - Pulls the image, stops old container, runs new one
 
@@ -60,11 +64,12 @@ Make sure your EC2 security group allows inbound traffic on that port.
 - Use SSM Parameter Store or Secrets Manager over env variables for docker login
 - Use EC2 IAM roles + AWS SSM to avoid storing SSH keys
 - Replace Docker Hub with Amazon ECR
-- Add monitoring/logging (e.g. CloudWatch, Prometheus)
 - Migrate to ECS or Kubernetes for scalability
+- Add monitoring/logging (e.g. CloudWatch, Prometheus)
 - Set Up Domain + TLS
 - Add HTTPS with Let's Encrypt
 - Pin GitHub Actions Versions
+- Pin GitHub Actions Runner to specific OS
 - Add unit tests and linting to CI
 
 ---
