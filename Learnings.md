@@ -72,5 +72,15 @@ Trivy
 
 - You can also have a template
 - Provide imageref or scanref
-- various formats available
-- enabling permissions for sarif upload
+- various formats available for output
+- enabling permissions initially for sarif upload
+
+Industry standards
+
+Scan always runs → Trivy scans every image.
+
+Results always upload → SARIF is uploaded to GitHub Security tab (so you have a permanent vulnerability record).
+
+Pipeline blocks on critical issues → further steps (push/deploy) are stopped if CRITICAL/HIGH CVEs are found.
+
+Branch protection enforces it → require the “Code scanning results / Trivy” check to pass before merging.
