@@ -110,7 +110,9 @@ jobs:
         run: |
           docker build -t ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${DOCKERHUB_TAG} .
     
-      - name: Run Trivy vulnerability scanner
+      - name: 🔍 Run Trivy vulnerability scanner
+        id: trivy
+        continue-on-error: true  # don’t stop pipeline, even if vulnerabilities found, ensures reporting
         uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: alpine:3.10
@@ -121,12 +123,20 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-      - name: Upload Trivy scan results to GitHub Security tab
+      - name: 📤 Upload Trivy scan results to GitHub Security tab
+        if: always()   # run even if Trivy step failed, ensures reporting
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
 
+      - name: ⛔ Gatekeeper - fail pipeline on CRITICAL/HIGH vulns
+        if: steps.trivy.outcome == 'failure'
+        run: |
+          echo "❌ Blocking pipeline: CRITICAL/HIGH vulnerabilities detected by Trivy."
+          exit 1
+
       - name: 🚀 Push image to Docker Hub
+        if: steps.trivy.outcome == 'success'
         run: |
           docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${DOCKERHUB_TAG}
 
