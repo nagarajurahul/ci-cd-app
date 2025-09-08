@@ -59,6 +59,8 @@ const js = require("@eslint/js"); -> old style -> requires adding sourceType: "c
 
 vs
 
-import js from "@eslint/js"; -> new style called ESM -> requires adding { "type": "module" } in package.json
+import js from "@eslint/js"; -> new style called ESM -> requires adding { "type": "module" } in package.json and sourceType: "module" in eslint
+
+also adding eslint-plugin for console error
 
 
