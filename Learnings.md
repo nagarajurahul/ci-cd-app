@@ -63,4 +63,8 @@ import js from "@eslint/js"; -> new style called ESM -> requires adding { "type"
 
 also adding eslint-plugin for console error
 
+You need to install everything through npm i -> to update packages
+
+no no -> turn off imports
+
 

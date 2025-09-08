@@ -12,7 +12,8 @@ export default [
     rules: {
       semi: ["error", "always"],
       quotes: ["error", "double"],
-      "n/no-unsupported-features/es-syntax": "off" // we’re using ESM intentionally
+      "n/no-unsupported-features/es-syntax": "off", // we’re using ESM intentionally
+      "n/no-unpublished-import": "off"
     }
   }
 ];
