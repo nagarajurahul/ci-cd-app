@@ -44,7 +44,7 @@ jobs:
 
       # Delete after running npm install command in dev terminal and adding to package
       - name: Install ESLint
-        run: npm install --save-dev eslint@8
+        run: npm install --save-dev eslint@9
 
       # Run ESLint
       - name: Run ESLint
