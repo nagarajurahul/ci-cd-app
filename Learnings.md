@@ -68,3 +68,9 @@ You need to install everything through npm i -> to update packages
 no no -> turn off imports
 
 
+Trivy
+
+- You can also have a template
+- Provide imageref or scanref
+- various formats available
+- enabling permissions for sarif upload
