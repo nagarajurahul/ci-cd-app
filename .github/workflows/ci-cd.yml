@@ -177,7 +177,7 @@ jobs:
         - name: Create Pull Request for GitOps Repo
           uses: peter-evans/create-pull-request@v6
           env:
-            IMAGE_TAG="${{ env.environment }}-${{ github.sha }}"
+            IMAGE_TAG: "${{ env.environment }}-${{ github.sha }}"
           with:
             repository: ${{ env.GITOPS_REPO_NAME }}
             token: ${{ secrets.GITOPS_REPO_TOKEN }}
