@@ -18,6 +18,9 @@ env:
   AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
   EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
   EC2_IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
+  environment: dev
+  values_file: ci-cd-app/values.yaml
+  GITOPS_REPO_NAME: nagarajurahul/helm-charts
 
 jobs:
 
@@ -147,7 +150,52 @@ jobs:
       - name: 🛠 Debug - show Docker image architecture
         run: |
           docker inspect ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${DOCKERHUB_TAG} --format='OS: {{.Os}}, Arch: {{.Architecture}}'
-          
+
+  update-gitops:
+      name: Update the image tag in GitOps Repo
+      runs-on: ubuntu-24.04
+      needs: ci
+      if: needs.ci.result == 'success'
+
+      steps:
+
+        - name: Checkout GitOps repo
+          uses: actions/checkout@v5
+          with:
+            repository: ${{ env.GITOPS_REPO_NAME }}
+            token: ${{ secrets.GITOPS_REPO_TOKEN }}
+            path: gitops
+
+        - name: Update image tag in values.yaml
+          run: |
+            cd gitops
+            yq -i '.image.tag = "${{ env.environment }}-${{ github.sha }}"' ${{ env.values_file }}
+
+
+          # https://github.com/marketplace/actions/create-pull-request
+
+        - name: Create Pull Request for GitOps Repo
+          uses: peter-evans/create-pull-request@v6
+          with:
+            token: ${{ secrets.GITOPS_REPO_TOKEN }}
+            commit-message: "Update image to ${{ env.environment }}-${{ github.sha }}"
+            branch: "update-image-${{ env.environment }}-${{ github.sha }}"
+            title: "Update image to ${{ env.environment }}-${{ github.sha }}"
+            body: "Automated update of image version for dev"
+
+        # - name: Create Pull Request for GitOps Repo
+        #   env:
+        #     GH_TOKEN: ${{ secrets.GITOPS_REPO_TOKEN }}
+        #   run: |
+        #     IMAGE_TAG="${ENVIRONMENT}-${GITHUB_SHA}"
+        #     BRANCH="update-image-${IMAGE_TAG}"
+        #     cd gitops
+        #     git checkout -b $BRANCH
+        #     git add $VALUES_FILE
+        #     git commit -m "Update image to ${ENVIRONMENT}-${GITHUB_SHA}" || echo "No changes to commit"
+        #     git push origin $BRANCH
+        #     gh pr create --title "Update image $IMAGE_TAG" --body "Automated update"
+
   # cd:
   #   name: 🚀 CD - Deploy to EC2
   #   runs-on: ubuntu-latest
