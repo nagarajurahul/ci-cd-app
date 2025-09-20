@@ -179,7 +179,7 @@ jobs:
           env:
             IMAGE_TAG: "${{ env.environment }}-${{ github.sha }}"
           with:
-            repository: ${{ env.GITOPS_REPO_NAME }}
+            path: gitops 
             token: ${{ secrets.GITOPS_REPO_TOKEN }}
             commit-message: "Update image to $IMAGE_TAG"
             branch: "update-image-$IMAGE_TAG"
