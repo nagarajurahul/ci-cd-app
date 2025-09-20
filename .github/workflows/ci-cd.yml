@@ -193,13 +193,16 @@ jobs:
           env:
             GH_TOKEN: ${{ secrets.GITOPS_REPO_TOKEN }}
             IMAGE_TAG: ${{ steps.vars.outputs.IMAGE_TAG }}
-            BRANCH: "update-image-${{ steps.vars.outputs.IMAGE_TAG }}"
+            BRANCH: update-image-${{ steps.vars.outputs.IMAGE_TAG }}
           run: |
             cd gitops
-            git checkout -b $BRANCH
-            git add ${VALUES_FILE}
-            git commit -m "Update image to ${IMAGE_TAG}" || echo "No changes to commit"
-            git push origin $BRANCH
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git checkout -b "$BRANCH"
+
+            git add "$values_file"
+            git commit -m "Update image to $IMAGE_TAG" || echo "No changes to commit"
+            git push origin "$BRANCH"
             gh pr create --title "Update image $IMAGE_TAG" --body "Automated update"
 
   # cd:
