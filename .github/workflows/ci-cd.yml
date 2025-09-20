@@ -166,25 +166,28 @@ jobs:
             token: ${{ secrets.GITOPS_REPO_TOKEN }}
             path: gitops
 
+        - name: Set IMAGE_TAG
+          id: vars
+          run: echo "IMAGE_TAG=${{ env.environment }}-${GITHUB_SHA}" >> $GITHUB_OUTPUT
+
         - name: Update image tag in values.yaml
           run: |
             cd gitops
-            yq -i '.image.tag = "${{ env.environment }}-${{ github.sha }}"' ${{ env.values_file }}
+            yq -i '.image.tag = "${{ steps.vars.outputs.IMAGE_TAG }}"' ${{ env.values_file }}
 
 
           # https://github.com/marketplace/actions/create-pull-request
 
         - name: Create Pull Request for GitOps Repo
-          uses: peter-evans/create-pull-request@v6
-          env:
-            IMAGE_TAG: "${{ env.environment }}-${{ github.sha }}"
+          uses: peter-evans/create-pull-request@v7
           with:
-            path: gitops 
+            path: gitops
             token: ${{ secrets.GITOPS_REPO_TOKEN }}
-            commit-message: "Update image to $IMAGE_TAG"
-            branch: "update-image-$IMAGE_TAG"
-            title: "Update image to $IMAGE_TAG"
-            body: "Automated update of image version for dev"
+            commit-message: "Update image to ${{ steps.vars.outputs.IMAGE_TAG }}"
+            branch: "update-image-${{ steps.vars.outputs.IMAGE_TAG }}"
+            title: "Update image to ${{ steps.vars.outputs.IMAGE_TAG }}"
+            body: "Automated update of image version for ${{ env.environment }}"
+
 
         # - name: Create Pull Request for GitOps Repo
         #   env:
