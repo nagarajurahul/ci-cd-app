@@ -178,29 +178,29 @@ jobs:
 
           # https://github.com/marketplace/actions/create-pull-request
 
-        - name: Create Pull Request for GitOps Repo
-          uses: peter-evans/create-pull-request@v7
-          with:
-            path: gitops
-            token: ${{ secrets.GITOPS_REPO_TOKEN }}
-            commit-message: "Update image to ${{ steps.vars.outputs.IMAGE_TAG }}"
-            branch: "update-image-${{ steps.vars.outputs.IMAGE_TAG }}"
-            title: "Update image to ${{ steps.vars.outputs.IMAGE_TAG }}"
-            body: "Automated update of image version for ${{ env.environment }}"
-
-
         # - name: Create Pull Request for GitOps Repo
-        #   env:
-        #     GH_TOKEN: ${{ secrets.GITOPS_REPO_TOKEN }}
-        #   run: |
-        #     IMAGE_TAG="${ENVIRONMENT}-${GITHUB_SHA}"
-        #     BRANCH="update-image-${IMAGE_TAG}"
-        #     cd gitops
-        #     git checkout -b $BRANCH
-        #     git add $VALUES_FILE
-        #     git commit -m "Update image to ${ENVIRONMENT}-${GITHUB_SHA}" || echo "No changes to commit"
-        #     git push origin $BRANCH
-        #     gh pr create --title "Update image $IMAGE_TAG" --body "Automated update"
+        #   uses: peter-evans/create-pull-request@v7
+        #   with:
+        #     path: gitops
+        #     token: ${{ secrets.GITOPS_REPO_TOKEN }}
+        #     commit-message: "Update image to ${{ steps.vars.outputs.IMAGE_TAG }}"
+        #     branch: "update-image-${{ steps.vars.outputs.IMAGE_TAG }}"
+        #     title: "Update image to ${{ steps.vars.outputs.IMAGE_TAG }}"
+        #     body: "Automated update of image version for ${{ env.environment }}"
+
+
+        - name: Create Pull Request for GitOps Repo
+          env:
+            GH_TOKEN: ${{ secrets.GITOPS_REPO_TOKEN }}
+            IMAGE_TAG: ${{ steps.vars.outputs.IMAGE_TAG }}
+            BRANCH: "update-image-${{ steps.vars.outputs.IMAGE_TAG }}"
+          run: |
+            cd gitops
+            git checkout -b $BRANCH
+            git add ${VALUES_FILE}
+            git commit -m "Update image to ${IMAGE_TAG}" || echo "No changes to commit"
+            git push origin $BRANCH
+            gh pr create --title "Update image $IMAGE_TAG" --body "Automated update"
 
   # cd:
   #   name: 🚀 CD - Deploy to EC2
