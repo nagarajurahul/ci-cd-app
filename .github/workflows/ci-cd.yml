@@ -176,11 +176,14 @@ jobs:
 
         - name: Create Pull Request for GitOps Repo
           uses: peter-evans/create-pull-request@v6
+          env:
+            IMAGE_TAG="${{ env.environment }}-${{ github.sha }}"
           with:
+            repository: ${{ env.GITOPS_REPO_NAME }}
             token: ${{ secrets.GITOPS_REPO_TOKEN }}
-            commit-message: "Update image to ${{ env.environment }}-${{ github.sha }}"
-            branch: "update-image-${{ env.environment }}-${{ github.sha }}"
-            title: "Update image to ${{ env.environment }}-${{ github.sha }}"
+            commit-message: "Update image to $IMAGE_TAG"
+            branch: "update-image-$IMAGE_TAG"
+            title: "Update image to $IMAGE_TAG"
             body: "Automated update of image version for dev"
 
         # - name: Create Pull Request for GitOps Repo
