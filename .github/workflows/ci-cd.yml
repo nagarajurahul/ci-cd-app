@@ -203,7 +203,7 @@ jobs:
             git add "$values_file"
             git commit -m "Update image to $IMAGE_TAG" || echo "No changes to commit"
             git push origin "$BRANCH"
-            gh pr create --title "Update image $IMAGE_TAG" --body "Automated update"
+            gh pr create --title "Update image $IMAGE_TAG" --body "Automated update of image version for $environment"
 
   # cd:
   #   name: 🚀 CD - Deploy to EC2
