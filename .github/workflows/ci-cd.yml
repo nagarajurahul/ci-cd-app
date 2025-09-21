@@ -186,14 +186,15 @@ jobs:
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.10.0
+        
+      - name: Write Cosign Key
+        run: echo "${{ secrets.COSIGN_KEY }}" | base64 -d > cosign.key
 
       - name: Sign Docker Image with Cosign
-        if: steps.trivy.outcome == 'success'
         run: |
-          cosign sign --yes --key env://COSIGN_KEY \
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.IMAGE_TAG }}
+          cosign sign --yes --key cosign.key \
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}@${{ steps.vars.outputs.IMAGE_TAG }}
         env:
-          COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
 
