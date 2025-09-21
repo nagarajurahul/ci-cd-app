@@ -15,9 +15,11 @@ env:
   DOCKERHUB_TAG: ${{ secrets.DOCKERHUB_TAG }}
   DOCKER_CONTAINER_NAME: ${{ secrets.DOCKER_CONTAINER_NAME }}
   DOCKER_CONTAINER_PORT: ${{ secrets.DOCKER_CONTAINER_PORT }}
+
   AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
   EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
   EC2_IP_ADDRESS: ${{ secrets.EC2_IP_ADDRESS }}
+
   environment: dev
   values_file: ci-cd-app/values.yaml
   GITOPS_REPO_NAME: nagarajurahul/helm-charts
@@ -125,6 +127,11 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: trivy-results
+          path: trivy-results.sarif
+
       - name: 📤 Upload Trivy scan results to GitHub Security tab
         if: always()   # run even if Trivy step failed, ensures reporting
         uses: github/codeql-action/upload-sarif@v3
@@ -195,7 +202,7 @@ jobs:
         #     commit-message: "Update image to ${{ steps.vars.outputs.IMAGE_TAG }}"
         #     branch: "update-image-${{ steps.vars.outputs.IMAGE_TAG }}"
         #     title: "Update image to ${{ steps.vars.outputs.IMAGE_TAG }}"
-        #     body: "Automated update of image version for ${{ env.environment }}"
+        #     body: "Automated update of image version for ${{ env.environment }} from CI Pipeline"
 
 
         - name: Create Pull Request for GitOps Repo
@@ -212,7 +219,16 @@ jobs:
             git add "$values_file"
             git commit -m "Update image to $IMAGE_TAG" || echo "No changes to commit"
             git push origin "$BRANCH"
-            gh pr create --title "Update image $IMAGE_TAG" --body "Automated update of image version for $environment"
+            gh pr create --title "Update image $IMAGE_TAG" --body "Automated update of image version for $environment from CI Pipeline"
+
+        - name: Upload values diff
+          run: git diff HEAD^ HEAD > values-diff.patch || true
+
+        - uses: actions/upload-artifact@v4
+          with:
+            name: values-diff
+            path: values-diff.patch
+
 
   # cd:
   #   name: 🚀 CD - Deploy to EC2
