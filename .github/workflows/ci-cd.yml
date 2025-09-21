@@ -182,22 +182,6 @@ jobs:
           path: sbom.json
 
 
-      # ADD Signing
-
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.10.0
-        
-      - name: Write Cosign Key
-        run: echo "${{ secrets.COSIGN_KEY }}" | base64 -d > cosign.key
-
-      - name: Sign Docker Image with Cosign
-        run: |
-          cosign sign --yes --key cosign.key \
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}@${{ steps.vars.outputs.IMAGE_TAG }}
-        env:
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-
-
       - name: 🛠 Debug - show Docker image architecture
         env:
           IMAGE_TAG: ${{ steps.vars.outputs.IMAGE_TAG }}
