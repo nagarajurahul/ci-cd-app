@@ -167,7 +167,7 @@ jobs:
       #     docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${IMAGE_TAG}
 
 
-      # ADD SBOM + SIGNING STEPS
+      # ADD SBOM
 
       - name: Generate SBOM (CycloneDX JSON)
         if: steps.trivy.outcome == 'success'
@@ -181,10 +181,15 @@ jobs:
           name: sbom
           path: sbom.json
 
+
+      # ADD Signing
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.10.0
+
       - name: Sign Docker Image with Cosign
         if: steps.trivy.outcome == 'success'
         run: |
-          curl -sSfL https://raw.githubusercontent.com/sigstore/cosign/main/install.sh | sh -s -- -b /usr/local/bin
           cosign sign --yes --key env://COSIGN_KEY \
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.IMAGE_TAG }}
         env:
