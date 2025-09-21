@@ -84,6 +84,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Set IMAGE_TAG
+        id: vars
+        run: echo "IMAGE_TAG=${{ env.environment }}-${GITHUB_SHA}" >> $GITHUB_OUTPUT
+
       - name: 🐳 Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -97,14 +101,16 @@ jobs:
           file: ./Dockerfile
           push: false                      # only build, so that we can scan image using Trivy
           load: true                       # load image into runner’s Docker engine
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ secrets.DOCKERHUB_TAG }}
-
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.IMAGE_TAG }}
+          
       # - name: 🐳 Login to Docker Hub
       #   run: echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
 
-      # - name: 🏗 Build Docker image (native amd64)
+      # - name: 🏗 Build Docker image (no push yet)
+      #   env:
+      #     IMAGE_TAG: ${{ steps.vars.outputs.IMAGE_TAG }}
       #   run: |
-      #     docker build -t ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${DOCKERHUB_TAG} .
+      #     docker build -t ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${IMAGE_TAG} .
     
       - name: 🔍 Run Trivy vulnerability scanner
         id: trivy
@@ -112,7 +118,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.28.0
         with:
           # image-ref: alpine:3.10   # for testing security and reporting
-          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ secrets.DOCKERHUB_TAG }}'
+          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.IMAGE_TAG }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
           exit-code: '1'   # fail if vulnerabilities found
@@ -139,17 +145,20 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ secrets.DOCKERHUB_TAG }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.IMAGE_TAG }}
 
       # - name: 🚀 Push image to Docker Hub
       #   if: steps.trivy.outcome == 'success'
+      #   env:
+      #     IMAGE_TAG: ${{ steps.vars.outputs.IMAGE_TAG }}
       #   run: |
-      #     docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${DOCKERHUB_TAG}
+      #     docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${IMAGE_TAG}
 
       - name: 🛠 Debug - show Docker image architecture
+        env:
+          IMAGE_TAG: ${{ steps.vars.outputs.IMAGE_TAG }}
         run: |
-          docker inspect ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${DOCKERHUB_TAG} --format='OS: {{.Os}}, Arch: {{.Architecture}}'
+          docker inspect ${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:${IMAGE_TAG} --format='OS: {{.Os}}, Arch: {{.Architecture}}'
 
   update-gitops:
       name: Update the image tag in GitOps Repo
