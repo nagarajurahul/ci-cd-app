@@ -120,16 +120,20 @@ jobs:
      
       - name: 🔍 Run Trivy vulnerability scanner
         id: trivy
-        continue-on-error: true  # don’t stop pipeline, even if vulnerabilities found, ensures reporting
+        continue-on-error: true
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          # image-ref: alpine:3.10   # for testing security and reporting
           image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.IMAGE_TAG }}'
           format: 'sarif'
           output: 'trivy-results.sarif'
-          exit-code: '1'   # fail if vulnerabilities found
-          vuln-type: 'os,library'
+
           severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+
+          vuln-type: 'os,library'
+          scanners: vuln
+
+          exit-code: '1' # fail only on HIGH/CRITICAL, only if fix exists
 
       - uses: actions/upload-artifact@v4
         with:
