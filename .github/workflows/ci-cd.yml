@@ -124,16 +124,15 @@ jobs:
         uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:${{ steps.vars.outputs.IMAGE_TAG }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          format: 'json'
+          output: 'trivy-results.json'
 
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
-
           vuln-type: 'os,library'
           scanners: vuln
 
-          exit-code: '1' # fail only on HIGH/CRITICAL, only if fix exists
+          exit-code: '0'
 
       - uses: actions/upload-artifact@v4
         with:
@@ -146,11 +145,17 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-      - name: ⛔ Gatekeeper - fail pipeline on CRITICAL/HIGH vulns
-        if: steps.trivy.outcome == 'failure'
+      - name: ⛔ Gatekeeper - Block fixable HIGH/CRITICAL CVEs
         run: |
-          echo "❌ Blocking pipeline: CRITICAL/HIGH vulnerabilities detected by Trivy."
-          exit 1
+          FIXABLE=$(jq '[.Results[].Vulnerabilities[] | select(.Severity == "HIGH" or .Severity == "CRITICAL") | select(.FixedVersion != null)] | length' trivy-results.json)
+          echo "Fixable HIGH/CRITICAL vulnerabilities: $FIXABLE"
+          if [ "$FIXABLE" -gt 0 ]; then
+            echo "❌ Blocking: fixable vulnerabilities detected."
+            exit 1
+          else
+            echo "✅ No fixable HIGH/CRITICAL vulnerabilities."
+          fi
+
 
       
       - name: 🚀 Push Docker image (only if scan passed)
