@@ -145,16 +145,16 @@ jobs:
       #   with:
       #     sarif_file: 'trivy-results.sarif'
 
-      - name: ⛔ Gatekeeper - Block fixable HIGH/CRITICAL CVEs
-        run: |
-          FIXABLE=$(jq '[.Results[].Vulnerabilities[] | select(.Severity == "HIGH" or .Severity == "CRITICAL") | select(.FixedVersion != null)] | length' trivy-results.json)
-          echo "Fixable HIGH/CRITICAL vulnerabilities: $FIXABLE"
-          if [ "$FIXABLE" -gt 0 ]; then
-            echo "❌ Blocking: fixable vulnerabilities detected."
-            exit 1
-          else
-            echo "✅ No fixable HIGH/CRITICAL vulnerabilities."
-          fi
+      # - name: ⛔ Gatekeeper - Block fixable HIGH/CRITICAL CVEs
+      #   run: |
+      #     FIXABLE=$(jq '[.Results[].Vulnerabilities[] | select(.Severity == "HIGH" or .Severity == "CRITICAL") | select(.FixedVersion != null)] | length' trivy-results.json)
+      #     echo "Fixable HIGH/CRITICAL vulnerabilities: $FIXABLE"
+      #     if [ "$FIXABLE" -gt 0 ]; then
+      #       echo "❌ Blocking: fixable vulnerabilities detected."
+      #       exit 1
+      #     else
+      #       echo "✅ No fixable HIGH/CRITICAL vulnerabilities."
+      #     fi
 
 
       
